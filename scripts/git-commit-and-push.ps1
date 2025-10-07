@@ -1,14 +1,15 @@
 param(
     [string]$Message = "Update",
     [switch]$RunTests,
-    [switch]$Force
+    [switch]$Force,
+    [string]$PythonPath = "python"
 )
 
 # Ensure venv exists when tests are requested
 if ($RunTests) {
     if (-not (Test-Path -Path .venv -PathType Container)) {
-        Write-Output ".venv not found. Creating virtual environment..."
-        python -m venv .venv
+        Write-Output ".venv not found. Creating virtual environment with $PythonPath..."
+        & $PythonPath -m venv .venv
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to create virtual environment. Aborting."
             exit 1
@@ -23,6 +24,17 @@ if ($RunTests) {
     } else {
         Write-Output "requirements-dev.txt not found; installing pytest alone"
         .venv\Scripts\pip.exe install --upgrade pytest | Out-Null
+    }
+
+    # Run ruff --fix if available
+    if (Test-Path -Path (Join-Path (Get-Location) 'requirements-dev.txt')) {
+        try {
+            .venv\Scripts\ruff.exe --version > $null 2>&1
+            Write-Output "Running ruff --fix..."
+            .venv\Scripts\ruff.exe --fix . | Out-Null
+        } catch {
+            Write-Output "ruff not available in venv; skipping formatting"
+        }
     }
 
     Write-Output "Running tests..."

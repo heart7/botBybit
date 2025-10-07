@@ -3,6 +3,7 @@
 MSG=${1:-"Update"}
 RUN_TESTS=false
 FORCE=false
+PYTHON=${PYTHON:-python}
 if [ "$2" == "--run-tests" ] || [ "$3" == "--run-tests" ]; then
   RUN_TESTS=true
 fi
@@ -12,9 +13,17 @@ fi
 
 if [ "$RUN_TESTS" = true ]; then
   echo "Running tests..."
+  if [ ! -d .venv ]; then
+    echo ".venv not found. Creating virtual environment with $PYTHON..."
+    $PYTHON -m venv .venv
+  fi
   if [ -f requirements-dev.txt ]; then
     echo "Installing dev requirements..."
     .venv/Scripts/pip install -r requirements-dev.txt
+    if command -v .venv/Scripts/ruff >/dev/null 2>&1; then
+      echo "Running ruff --fix..."
+      .venv/Scripts/ruff --fix . || true
+    fi
   else
     .venv/Scripts/pip install -U pytest
   fi
