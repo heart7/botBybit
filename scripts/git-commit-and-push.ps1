@@ -1,7 +1,17 @@
 param(
     [string]$Message = "Update",
-    [switch]$Force
+    [switch]$RunTests
 )
+
+# Optionally run tests before committing
+if ($RunTests) {
+    Write-Output "Running tests..."
+    .venv\Scripts\python.exe -m pytest -q
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Tests failed. Aborting commit."
+        exit 1
+    }
+}
 
 # Staging
 git add -A
