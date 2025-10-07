@@ -1,5 +1,7 @@
 # autolfow_Bot
 
+[![CI](https://github.com/heart7/botBybit/actions/workflows/ci.yml/badge.svg)](https://github.com/heart7/botBybit/actions/workflows/ci.yml)
+
 This folder holds configuration for an automated trading bot.
 
 Files:
