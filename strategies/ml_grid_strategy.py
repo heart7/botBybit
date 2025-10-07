@@ -6,8 +6,6 @@ try:
 except Exception:
     TensorflowRegressor = None
     FreqaiDataKitchen = None
-from freqtrade.persistence import Trade
-from freqtrade.exchange import timeframe_to_minutes
 from datetime import datetime
 import numpy as np
 import pandas as pd

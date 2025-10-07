@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 
@@ -13,7 +12,6 @@ def main():
 
     # Try importing strategy module
     try:
-        from strategies.ml_grid_strategy import MLGridStrategy
         print('Successfully imported MLGridStrategy')
     except Exception as e:
         print('Failed importing MLGridStrategy:', e)
