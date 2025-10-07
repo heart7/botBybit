@@ -1,0 +1,6 @@
+freqtrade
+tensorflow
+pandas
+numpy
+ta-lib
+requests
