@@ -4,9 +4,11 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config_loader import load_config
 
 def main():
+    # Import inside main after sys.path has been adjusted
+    from config_loader import load_config
+
     cfg = load_config()
     print('Loaded config exchange:', cfg.get('exchange', {}).get('name'))
 

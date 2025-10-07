@@ -1,10 +1,10 @@
 import re
-import sys
 from pathlib import Path
+import sys
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
 # Ensure project root is importable so local modules (config_loader, strategies) can be imported
-import sys
 sys.path.insert(0, str(ROOT))
 
 py_files = list(ROOT.glob('**/*.py'))
@@ -56,7 +56,6 @@ else:
     print('  - All imports resolved in the current environment.')
 
 print('\nEnvironment:')
-import subprocess
 try:
     out = subprocess.check_output([str(ROOT / '.venv' / 'Scripts' / 'python.exe'), '--version'], stderr=subprocess.STDOUT, text=True)
     print('  Python:', out.strip())

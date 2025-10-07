@@ -96,8 +96,6 @@ class MLGridStrategy(IStrategy):
 
             predicted_delta = pred_df['prediction']
             sentiment = dataframe['sentiment']
-            vol_pred = np.std(predicted_delta[-10:])
-            dynamic_spacing = self.grid_spacing * (1 + vol_pred + (sentiment - 0.5))
 
             conditions_long = (
                 (dataframe['rsi'] < 30) &
