@@ -5,6 +5,83 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      run-heavy:
+        description: 'Run heavy TF job (installs TensorFlow). Default: false'
+        required: false
+        default: 'false'
+
+jobs:
+  smoke:
+    name: Light smoke and tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+          .venv\Scripts\pip.exe install --upgrade pip
+
+      - name: Install lightweight requirements
+        run: |
+          .venv\Scripts\pip.exe install -r requirements.txt
+
+      - name: Run smoke script
+        run: .venv\Scripts\python.exe run_smoke_light.py
+
+      - name: Run pytest
+        run: .venv\Scripts\python.exe -m pytest -q
+
+  heavy:
+    name: Heavy (TensorFlow) [optional]
+    if: ${{ github.event.inputs.run-heavy == 'true' || github.event_name == 'push' && contains(github.ref, 'refs/heads/heavy') }}
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Create venv
+        run: |
+          python -m venv .venv
+          .venv\Scripts\pip.exe install --upgrade pip
+
+      - name: Install full requirements (may be slow)
+        run: |
+          .venv\Scripts\pip.exe install -r requirements.txt
+
+      - name: Run smoke script
+        run: .venv\Scripts\python.exe run_smoke_light.py
+
+      - name: Run pytest
+        run: .venv\Scripts\python.exe -m pytest -q
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:

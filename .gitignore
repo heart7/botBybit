@@ -1,8 +1,19 @@
 # Ignore secrets and common runtime files
+# Config and secrets
 config.json
+.env
+
+# Python runtime
 *.pyc
 __pycache__/
-node_modules/
-env/
+.venv/
 venv/
-.env
+env/
+
+# Node
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
