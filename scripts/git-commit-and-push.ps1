@@ -1,6 +1,7 @@
 param(
     [string]$Message = "Update",
-    [switch]$RunTests
+    [switch]$RunTests,
+    [switch]$Force
 )
 
 # Ensure venv exists when tests are requested
@@ -15,20 +16,30 @@ if ($RunTests) {
         .venv\Scripts\pip.exe install --upgrade pip
     }
 
-    # Ensure pytest is available in the venv for running tests
-    Write-Output "Installing/ensuring pytest in .venv..."
-    .venv\Scripts\pip.exe install --upgrade pytest | Out-Null
+    # Ensure dev requirements are available in the venv for running tests
+    if (Test-Path -Path (Join-Path (Get-Location) 'requirements-dev.txt')) {
+        Write-Output "Installing dev requirements in .venv..."
+        .venv\Scripts\pip.exe install -r requirements-dev.txt | Out-Null
+    } else {
+        Write-Output "requirements-dev.txt not found; installing pytest alone"
+        .venv\Scripts\pip.exe install --upgrade pytest | Out-Null
+    }
 
     Write-Output "Running tests..."
     .venv\Scripts\python.exe -m pytest -q
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "Tests failed."
-        $answer = Read-Host "Force commit anyway? (y/N)"
-        if ($answer -notin @('y','Y')) {
-            Write-Output "Aborting commit due to failing tests."
-            exit 1
+        if ($Force) {
+            Write-Output "Force flag passed; proceeding to commit despite test failures."
+            $forceCommit = $true
+        } else {
+            $answer = Read-Host "Force commit anyway? (y/N)"
+            if ($answer -notin @('y','Y')) {
+                Write-Output "Aborting commit due to failing tests."
+                exit 1
+            }
+            $forceCommit = $true
         }
-        $forceCommit = $true
     }
 }
 
