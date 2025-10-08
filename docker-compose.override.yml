@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  autoflow:
+    # In development we mount the code but avoid overwriting the container venv directory.
+    # This override mounts only the working tree, not /opt/venv. If you have a host venv
+    # you can mount it to /opt/venv (not recommended unless you know the paths match).
+    volumes:
+      - ./:/opt/autoflow_Bot:cached
+      - ./user_data:/opt/autoflow_Bot/user_data:cached
+    # Example: run an interactive shell for debugging
+    command: /bin/bash
+    stdin_open: true
+    tty: true

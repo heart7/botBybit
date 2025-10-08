@@ -1,0 +1,63 @@
+
+
+2025-10-07 20:17:43,447 - freqtrade - INFO - freqtrade 2025.9.1
+2025-10-07 20:17:48,466 - freqtrade.configuration.load_config - INFO - Using config: config.json ...
+2025-10-07 20:17:48,472 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-10-07 20:17:48,473 - freqtrade.loggers - INFO - Logfile configured
+2025-10-07 20:17:48,474 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-10-07 20:17:48,474 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2025-10-07 20:17:48,475 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250907-20251007 ...
+2025-10-07 20:17:48,477 - freqtrade.configuration.configuration - INFO - Using user-data directory: c:\Users\geasi\.vscode\autoflow_Bot\user_data ...
+2025-10-07 20:17:48,478 - freqtrade.configuration.configuration - INFO - Using data directory: user_data\data ...
+2025-10-07 20:17:48,478 - freqtrade.configuration.configuration - INFO - Parameter --cache=day detected ...
+2025-10-07 20:17:48,479 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250907-20251007
+2025-10-07 20:17:48,482 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-10-07 20:17:48,495 - freqtrade.exchange.check_exchange - INFO - Exchange "bybit" is officially supported by the Freqtrade development team.
+2025-10-07 20:17:48,496 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-10-07 20:17:48,496 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-10-07 20:17:48,500 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2025-10-07 20:17:48,503 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-10-07 20:17:48,504 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.8
+2025-10-07 20:17:48,505 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:17:48,514 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:17:48,527 - freqtrade.exchange.exchange - INFO - Using Exchange "Bybit"
+2025-10-07 20:17:51,224 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Bybit'...
+2025-10-07 20:17:51,264 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy MLGridStrategy from 'C:\Users\geasi\.vscode\autoflow_Bot\user_data\strategies\ml_grid_strategy.py'...
+2025-10-07 20:17:51,265 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-10-07 20:17:51,268 - ml_grid_strategy - INFO - freqai_enabled=False
+2025-10-07 20:17:51,269 - ml_grid_strategy - INFO - freqai_model_parameters={'epochs': 25, 'batch_size': 16, 'optimizer': 'adam', 'loss': 'mse', 'metrics': ['mae'], 'layers': [{'type': 
+'MultiHeadAttention', 'num_heads': 4, 'key_dim': 50}, {'type': 'Dense', 'units': 64, 'activation': 'relu'}, {'type': 'Dense', 'units': 1}]}
+2025-10-07 20:17:51,271 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stoploss' with value from the configuration: -0.02.
+2025-10-07 20:17:51,272 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-10-07 20:17:51,273 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: 10.
+2025-10-07 20:17:51,275 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2025-10-07 20:17:51,277 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.05}
+2025-10-07 20:17:51,278 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 1h
+2025-10-07 20:17:51,279 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.02
+2025-10-07 20:17:51,280 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: True
+2025-10-07 20:17:51,281 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive: 0.02
+2025-10-07 20:17:51,282 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-10-07 20:17:51,284 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-10-07 20:17:51,286 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-10-07 20:17:51,287 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-10-07 20:17:51,289 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2025-10-07 20:17:51,290 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-10-07 20:17:51,291 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-10-07 20:17:51,292 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: 10
+2025-10-07 20:17:51,293 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 50
+2025-10-07 20:17:51,295 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-10-07 20:17:51,296 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-10-07 20:17:51,297 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-10-07 20:17:51,298 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-10-07 20:17:51,299 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-10-07 20:17:51,302 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-10-07 20:17:51,303 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-10-07 20:17:51,304 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-10-07 20:17:51,305 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2025-10-07 20:17:51,306 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-10-07 20:17:51,353 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\geasi\.vscode\autoflow_Bot\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2025-10-07 20:17:51,362 - freqtrade.optimize.backtesting - INFO - Using fee 0.1000% - worst case fee from exchange (lowest tier).
+2025-10-07 20:17:51,418 - freqtrade.data.history.datahandlers.idatahandler - WARNING - No history for BTC/USDT, spot, 1h found. Use `freqtrade download-data` to download the data
+2025-10-07 20:17:51,419 - freqtrade - ERROR - No data found. Terminating.

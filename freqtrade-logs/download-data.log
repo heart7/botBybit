@@ -1,0 +1,28 @@
+
+
+2025-10-07 20:15:15,120 - freqtrade - INFO - freqtrade 2025.9.1
+2025-10-07 20:15:20,253 - freqtrade.configuration.load_config - INFO - Using config: config.json ...
+2025-10-07 20:15:20,256 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-10-07 20:15:20,257 - freqtrade.loggers - INFO - Logfile configured
+2025-10-07 20:15:20,259 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-10-07 20:15:20,260 - freqtrade.configuration.configuration - INFO - Using exchange bybit
+2025-10-07 20:15:20,265 - freqtrade.configuration.configuration - INFO - Using user-data directory: c:\Users\geasi\.vscode\autoflow_Bot\user_data ...
+2025-10-07 20:15:20,266 - freqtrade.configuration.configuration - INFO - Using data directory: c:\Users\geasi\.vscode\autoflow_Bot\user_data\data\bybit ...
+2025-10-07 20:15:20,267 - freqtrade.configuration.configuration - INFO - Using pairs ['BTC/USDT']
+2025-10-07 20:15:20,268 - freqtrade.configuration.configuration - INFO - timeframes --timeframes: ['1h']
+2025-10-07 20:15:20,271 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-10-07 20:15:20,290 - freqtrade.exchange.check_exchange - INFO - Exchange "bybit" is officially supported by the Freqtrade development team.
+2025-10-07 20:15:20,292 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-10-07 20:15:20,387 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-10-07 20:15:20,387 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.8
+2025-10-07 20:15:20,388 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:15:20,401 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:15:20,412 - freqtrade.exchange.exchange - INFO - Using Exchange "Bybit"
+2025-10-07 20:15:20,415 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Bybit'...
+2025-10-07 20:15:20,415 - freqtrade.exchange.exchange - INFO - Markets were not loaded. Loading them now..
+2025-10-07 20:15:23,035 - freqtrade.data.history.history_utils - INFO - About to download pairs: ['BTC/USDT'], intervals: ['1h'] to c:\Users\geasi\.vscode\autoflow_Bot\user_data\data\bybit
+2025-10-07 20:15:23,104 - freqtrade.data.history.history_utils - INFO - Download history data for "BTC/USDT", 1h, spot and store in c:\Users\geasi\.vscode\autoflow_Bot\user_data\data\bybit. From start
+to now
+2025-10-07 20:15:23,590 - freqtrade.data.history.history_utils - INFO - Downloaded data for BTC/USDT with length 719.
+Timeframe            ------------------------------------------------------------------------------------------------------------------------------------------------------ 1/1 100% • 0:00:00 • 0:00:00
+Downloading BTC/USDT ------------------------------------------------------------------------------------------------------------------------------------------------------ 1/1 100% • 0:00:00 • 0:00:00

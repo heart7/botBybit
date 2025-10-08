@@ -4,4 +4,5 @@ pandas
 numpy
 ta-lib
 requests
+Flask
 pytest

@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  autoflow:
+    build: .
+    container_name: autoflow
+    working_dir: /opt/autoflow_Bot
+    volumes:
+      - ./:/opt/autoflow_Bot:cached
+      - ./user_data:/opt/autoflow_Bot/user_data:cached
+    env_file:
+      - .env
+    environment:
+      - FREQTRADE_CONFIG_PATH=/opt/autoflow_Bot/config.json
+  # Note: the image runtime installs a venv at /opt/venv. When using the built image (not mounting
+  # the local repo), the container will use /opt/venv. The image's entrypoint will run freqtrade
+  # by default. To override the default command when running compose, you can pass `command:` here
+  # or `docker compose run autoflow <command>`.
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  telegram-bot:
+    profiles: [telegram-poll]
+    build: .
+    container_name: autoflow-telegram-bot
+    working_dir: /opt/autoflow_Bot
+    volumes:
+      - ./:/opt/autoflow_Bot:cached
+    env_file:
+      - .env
+    environment:
+      - TELEGRAM_BOT_TOKEN
+      - TELEGRAM_ADMIN_ID
+      - PUBLISH_GITHUB_PAT
+      - GITHUB_REPOSITORY
+    command: /opt/venv/bin/python /opt/autoflow_Bot/telegram_publisher_bot.py
+    restart: unless-stopped
+  telegram-bot-webhook:
+    profiles: [telegram-webhook]
+    build: .
+    container_name: autoflow-telegram-bot-webhook
+    working_dir: /opt/autoflow_Bot
+    volumes:
+      - ./:/opt/autoflow_Bot:cached
+    env_file:
+      - .env
+    environment:
+      - TELEGRAM_BOT_TOKEN
+      - TELEGRAM_ADMIN_ID
+      - PUBLISH_GITHUB_PAT
+      - GITHUB_REPOSITORY
+      - WEBHOOK_SECRET
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    command: /opt/venv/bin/python /opt/autoflow_Bot/telegram_publisher_webhook.py
+    restart: unless-stopped

@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create (e.g. v1.0.0)'
+        required: true
+      release_name:
+        description: 'Release name'
+        required: false
+      body:
+        description: 'Release notes'
+        required: false
+      auto_publish:
+        description: 'If true and PUBLISH_GITHUB_PAT secret is set, dispatch publish workflow automatically.'
+        required: false
+        default: 'false'
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare pending release artifact
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          echo "Preparing pending release for tag $TAG"
+          echo "{\"tag\": \"$TAG\", \"commit\": \"${GITHUB_SHA}\"}" > release-info.json
+
+      - name: Upload pending release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pending-release-${{ github.event.inputs.tag }}
+          path: release-info.json
+
+      - name: Notify: pending release created
+        run: |
+          TAG=${{ github.event.inputs.tag }}
+          COMMIT="${GITHUB_SHA}"
+          REPO=${GITHUB_REPOSITORY}
+          RUN_URL="https://github.com/${REPO}/actions/runs/${GITHUB_RUN_ID}"
+          PUBLISH_WORKFLOW_URL="https://github.com/${REPO}/actions/workflows/publish_release.yml"
+          # Pre-fill the artifact_name as pending-release-<tag> so the approver can launch the publish workflow with less typing
+          ARTIFACT_NAME="pending-release-${TAG}"
+          # Resolve the repository default branch via the GitHub API and use it for the ref parameter
+          API_URL="https://api.github.com/repos/${REPO}"
+          DEFAULT_BRANCH=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" "$API_URL" | jq -r .default_branch)
+          if [ -z "$DEFAULT_BRANCH" ] || [ "$DEFAULT_BRANCH" = "null" ]; then
+            DEFAULT_BRANCH="main"
+          fi
+          # Build a dispatch URL that opens the workflow 'Run workflow' form with inputs pre-filled in the UI
+          # This uses the runs/new URL and query params like inputs[artifact_name]
+          PUBLISH_DISPATCH_URL="https://github.com/${REPO}/actions/runs/new?workflow_id=publish_release.yml&ref=${DEFAULT_BRANCH}&inputs[artifact_name]=${ARTIFACT_NAME}"
+          MSG="Pending release created for tag ${TAG} (commit: ${COMMIT}). Click Approve to publish."
+          echo "$MSG"
+          if [ -n "${{ secrets.TELEGRAM_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            # Build inline keyboard JSON
+            # Add a callback button for one-click publish via an external Telegram bot (callback_data: publish:<artifact>)
+            REPLY=$(jq -n --arg run "$RUN_URL" --arg pub "$PUBLISH_DISPATCH_URL" --arg art "$ARTIFACT_NAME" --arg cb "publish:$ARTIFACT_NAME" '{inline_keyboard: [[{text: "View run", url: $run}, {text: ("Approve publish: " + $art), url: $pub}, {text: "One-click publish", callback_data: $cb}]]}')
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+              -H 'Content-Type: application/json' \
+              -d $(jq -n --arg chat "${{ secrets.TELEGRAM_CHAT_ID }}" --arg text "$MSG" --argjson rm "$REPLY" '{chat_id: $chat, text: $text, reply_markup: $rm}') || true
+          else
+            echo "TELEGRAM_TOKEN or TELEGRAM_CHAT_ID not set; skipping telegram notification"
+          fi
+
+      - name: Optionally dispatch publish workflow (programmatic)
+        if: ${{ github.event.inputs.auto_publish == 'true' && secrets.PUBLISH_GITHUB_PAT != '' }}
+        run: |
+          ARTIFACT_NAME="pending-release-${{ github.event.inputs.tag }}"
+          REPO=${GITHUB_REPOSITORY}
+          API_URL="https://api.github.com/repos/${REPO}/actions/workflows/publish_release.yml/dispatches"
+          PAYLOAD=$(jq -n --arg ref "${GITHUB_REF_NAME:-${GITHUB_REF##*/}}" --arg art "$ARTIFACT_NAME" '{ref: $ref, inputs: {artifact_name: $art}}')
+          echo "Dispatching publish workflow with payload: $PAYLOAD"
+          # Use provided PAT to dispatch the workflow
+          curl -s -X POST "$API_URL" -H "Authorization: token ${PUBLISH_GITHUB_PAT}" -H "Accept: application/vnd.github+json" -d "$PAYLOAD" || true
+          if [ -n "${{ secrets.TELEGRAM_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            MSG2="Auto-dispatch requested for ${ARTIFACT_NAME}"
+            RUNS_URL="https://github.com/${REPO}/actions/workflows/publish_release.yml/runs"
+            PAYLOAD2=$(jq -n --arg chat "${{ secrets.TELEGRAM_CHAT_ID }}" --arg text "$MSG2" --arg run "$RUNS_URL" '{chat_id: $chat, text: $text, reply_markup: {inline_keyboard: [[{text: "View publish runs", url: $run}] ]}}')
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -H 'Content-Type: application/json' -d "$PAYLOAD2" || true
+          fi

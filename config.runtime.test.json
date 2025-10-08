@@ -1,0 +1,68 @@
+{
+  "exchange": {
+    "name": "bybit",
+    "pair_whitelist": [
+      "BTC/USDT"
+    ],
+    "ccxt_config": {
+      "options": {
+        "defaultType": "future"
+      }
+    }
+  },
+  "strategy": "MLGridStrategy",
+  "stake_currency": "USDT",
+  "stake_amount": 10,
+  "max_open_trades": 1,
+  "dry_run": true,
+  "stoploss": -0.05,
+  "freqai_enabled": false,
+  "freqai_model_parameters": {
+    "epochs": 50,
+    "batch_size": 16,
+    "optimizer": "adam",
+    "loss": "mse",
+    "metrics": [
+      "mae"
+    ]
+  },
+  "pairlists": [
+    {
+      "method": "StaticPairList",
+      "pairs": [
+        "BTC/USDT"
+      ]
+    }
+  ],
+  "exit_pricing": {
+    "price_side": "ask",
+    "use_order_book": false,
+    "order_book_top": 1
+  },
+  "entry_pricing": {
+    "price_side": "bid",
+    "use_order_book": false,
+    "order_book_top": 1
+  },
+  "strategy_config": {
+    "MLGridStrategy": {
+      "freqai_enabled": false,
+      "freqai_model_parameters": {
+        "epochs": 25
+      }
+    }
+  },
+  "notifier": {
+    "telegram": {
+      "enabled": false,
+      "token": "",
+      "chat_id": "",
+      "triggers": [
+        "trade_open",
+        "trade_close",
+        "error"
+      ],
+      "disable_additional_messages": false
+    }
+  }
+}

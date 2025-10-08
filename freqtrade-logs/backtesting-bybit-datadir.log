@@ -1,0 +1,113 @@
+Result for strategy MLGridStrategy
+                                             BACKTESTING REPORT                                              
++-----------------------------------------------------------------------------------------------------------+
+|     Pair | Trades | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |
+|----------+--------+--------------+-----------------+--------------+--------------+------------------------|
+| BTC/USDT |      0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
+|    TOTAL |      0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
++-----------------------------------------------------------------------------------------------------------+
+                                         LEFT OPEN TRADES REPORT                                          
++--------------------------------------------------------------------------------------------------------+
+|  Pair | Trades | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |
+|-------+--------+--------------+-----------------+--------------+--------------+------------------------|
+| TOTAL |      0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
++--------------------------------------------------------------------------------------------------------+
+                                                ENTER TAG STATS                                                
++-------------------------------------------------------------------------------------------------------------+
+| Enter Tag | Entries | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |
+|-----------+---------+--------------+-----------------+--------------+--------------+------------------------|
+|     TOTAL |       0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
++-------------------------------------------------------------------------------------------------------------+
+                                               EXIT REASON STATS                                               
++-------------------------------------------------------------------------------------------------------------+
+| Exit Reason | Exits | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |
+|-------------+-------+--------------+-----------------+--------------+--------------+------------------------|
+|       TOTAL |     0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
++-------------------------------------------------------------------------------------------------------------+
+                                                      MIXED TAG STATS                                                       
++--------------------------------------------------------------------------------------------------------------------------+
+| Enter Tag | Exit Reason | Trades | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |
+|-----------+-------------+--------+--------------+-----------------+--------------+--------------+------------------------|
+|     TOTAL |             |      0 |          0.0 |           0.000 |          0.0 |         0:00 |    0     0     0     0 |
++--------------------------------------------------------------------------------------------------------------------------+
+No trades made. Your starting balance was 1000 USDT, and your stake was 10 USDT.
+
+Backtested 2025-09-09 22:00:00 -> 2025-10-07 00:00:00 | Max open trades : 1
+                                                         STRATEGY SUMMARY                                                          
++---------------------------------------------------------------------------------------------------------------------------------+
+|       Strategy | Trades | Avg Profit % | Tot Profit USDT | Tot Profit % | Avg Duration |  Win  Draw  Loss  Win% |      Drawdown |
+|----------------+--------+--------------+-----------------+--------------+--------------+------------------------+---------------|
+| MLGridStrategy |      0 |         0.00 |           0.000 |          0.0 |         0:00 |    0     0     0     0 | 0 USDT  0.00% |
++---------------------------------------------------------------------------------------------------------------------------------+
+
+
+2025-10-07 20:19:59,607 - freqtrade - INFO - freqtrade 2025.9.1
+2025-10-07 20:20:04,398 - freqtrade.configuration.load_config - INFO - Using config: config.json ...
+2025-10-07 20:20:04,403 - freqtrade.loggers - INFO - Enabling colorized output.
+2025-10-07 20:20:04,405 - freqtrade.loggers - INFO - Logfile configured
+2025-10-07 20:20:04,405 - freqtrade.loggers - INFO - Verbosity set to 0
+2025-10-07 20:20:04,406 - freqtrade.configuration.configuration - INFO - Using max_open_trades: 1 ...
+2025-10-07 20:20:04,407 - freqtrade.configuration.configuration - INFO - Parameter --timerange detected: 20250907-20251007 ...
+2025-10-07 20:20:04,409 - freqtrade.configuration.configuration - INFO - Using user-data directory: c:\Users\geasi\.vscode\autoflow_Bot\user_data ...
+2025-10-07 20:20:04,410 - freqtrade.configuration.configuration - INFO - Using data directory: user_data\data\bybit ...
+2025-10-07 20:20:04,411 - freqtrade.configuration.configuration - INFO - Parameter --cache=day detected ...
+2025-10-07 20:20:04,412 - freqtrade.configuration.configuration - INFO - Filter trades by timerange: 20250907-20251007
+2025-10-07 20:20:04,413 - freqtrade.exchange.check_exchange - INFO - Checking exchange...
+2025-10-07 20:20:04,435 - freqtrade.exchange.check_exchange - INFO - Exchange "bybit" is officially supported by the Freqtrade development team.
+2025-10-07 20:20:04,436 - freqtrade.configuration.configuration - INFO - Using pairlist from configuration.
+2025-10-07 20:20:04,436 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-10-07 20:20:04,443 - freqtrade.commands.optimize_commands - INFO - Starting freqtrade in Backtesting mode
+2025-10-07 20:20:04,445 - freqtrade.exchange.exchange - INFO - Instance is running with dry_run enabled
+2025-10-07 20:20:04,446 - freqtrade.exchange.exchange - INFO - Using CCXT 4.5.8
+2025-10-07 20:20:04,447 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:20:04,467 - freqtrade.exchange.exchange - INFO - Applying additional ccxt config: {'options': {'defaultType': 'spot'}}
+2025-10-07 20:20:04,492 - freqtrade.exchange.exchange - INFO - Using Exchange "Bybit"
+2025-10-07 20:20:07,073 - freqtrade.resolvers.exchange_resolver - INFO - Using resolved exchange 'Bybit'...
+2025-10-07 20:20:07,104 - freqtrade.resolvers.iresolver - INFO - Using resolved strategy MLGridStrategy from 'C:\Users\geasi\.vscode\autoflow_Bot\user_data\strategies\ml_grid_strategy.py'...
+2025-10-07 20:20:07,105 - freqtrade.strategy.hyper - INFO - Found no parameter file.
+2025-10-07 20:20:07,106 - ml_grid_strategy - INFO - freqai_enabled=False
+2025-10-07 20:20:07,107 - ml_grid_strategy - INFO - freqai_model_parameters={'epochs': 25, 'batch_size': 16, 'optimizer': 'adam', 'loss': 'mse', 'metrics': ['mae'], 'layers': [{'type': 
+'MultiHeadAttention', 'num_heads': 4, 'key_dim': 50}, {'type': 'Dense', 'units': 64, 'activation': 'relu'}, {'type': 'Dense', 'units': 1}]}
+2025-10-07 20:20:07,108 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stoploss' with value from the configuration: -0.02.
+2025-10-07 20:20:07,108 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_currency' with value from the configuration: USDT.
+2025-10-07 20:20:07,109 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'stake_amount' with value from the configuration: 10.
+2025-10-07 20:20:07,110 - freqtrade.resolvers.strategy_resolver - INFO - Override strategy 'max_open_trades' with value from the configuration: 1.
+2025-10-07 20:20:07,110 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using minimal_roi: {'0': 0.05}
+2025-10-07 20:20:07,111 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using timeframe: 1h
+2025-10-07 20:20:07,112 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stoploss: -0.02
+2025-10-07 20:20:07,112 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop: True
+2025-10-07 20:20:07,115 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive: 0.02
+2025-10-07 20:20:07,115 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_stop_positive_offset: 0.0
+2025-10-07 20:20:07,116 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using trailing_only_offset_is_reached: False
+2025-10-07 20:20:07,117 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_custom_stoploss: False
+2025-10-07 20:20:07,117 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using process_only_new_candles: True
+2025-10-07 20:20:07,119 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_types: {'entry': 'limit', 'exit': 'limit', 'stoploss': 'limit', 'stoploss_on_exchange': False, 
+'stoploss_on_exchange_interval': 60}
+2025-10-07 20:20:07,120 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using order_time_in_force: {'entry': 'GTC', 'exit': 'GTC'}
+2025-10-07 20:20:07,120 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_currency: USDT
+2025-10-07 20:20:07,121 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using stake_amount: 10
+2025-10-07 20:20:07,121 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using startup_candle_count: 50
+2025-10-07 20:20:07,122 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using use_exit_signal: True
+2025-10-07 20:20:07,122 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_only: False
+2025-10-07 20:20:07,123 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_roi_if_entry_signal: False
+2025-10-07 20:20:07,124 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using exit_profit_offset: 0.0
+2025-10-07 20:20:07,124 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using disable_dataframe_checks: False
+2025-10-07 20:20:07,125 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using ignore_buying_expired_candle_after: 0
+2025-10-07 20:20:07,125 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using position_adjustment_enable: False
+2025-10-07 20:20:07,126 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_entry_position_adjustment: -1
+2025-10-07 20:20:07,127 - freqtrade.resolvers.strategy_resolver - INFO - Strategy using max_open_trades: 1
+2025-10-07 20:20:07,127 - freqtrade.configuration.config_validation - INFO - Validating configuration ...
+2025-10-07 20:20:07,169 - freqtrade.resolvers.iresolver - INFO - Using resolved pairlist StaticPairList from 
+'C:\Users\geasi\.vscode\autoflow_Bot\.venv\Lib\site-packages\freqtrade\plugins\pairlist\StaticPairList.py'...
+2025-10-07 20:20:07,175 - freqtrade.optimize.backtesting - INFO - Using fee 0.1000% - worst case fee from exchange (lowest tier).
+2025-10-07 20:20:07,249 - freqtrade.data.history.datahandlers.idatahandler - WARNING - BTC/USDT, spot, 1h, data starts at 2025-09-07 20:00:00
+2025-10-07 20:20:07,287 - freqtrade.optimize.backtesting - INFO - Loading data from 2025-09-07 20:00:00 up to 2025-10-07 00:00:00 (29 days).
+2025-10-07 20:20:07,288 - freqtrade.configuration.timerange - WARNING - Moving start-date by 50 candles to account for startup time.
+2025-10-07 20:20:07,328 - freqtrade.optimize.backtesting - INFO - Dataload complete. Calculating indicators
+2025-10-07 20:20:07,335 - freqtrade.optimize.backtesting - INFO - Running backtesting for Strategy MLGridStrategy
+2025-10-07 20:20:07,336 - freqtrade.strategy.hyper - INFO - No params for buy found, using default values.
+2025-10-07 20:20:07,337 - freqtrade.strategy.hyper - INFO - No params for sell found, using default values.
+2025-10-07 20:20:07,338 - freqtrade.strategy.hyper - INFO - No params for protection found, using default values.
+2025-10-07 20:20:08,358 - ml_grid_strategy - INFO - Fetched sentiment: 0.8262
+2025-10-07 20:20:08,366 - freqtrade.optimize.backtesting - INFO - Backtesting with data from 2025-09-09 22:00:00 up to 2025-10-07 00:00:00 (27 days).
+2025-10-07 20:20:08,438 - freqtrade.misc - INFO - dumping json to "c:\Users\geasi\.vscode\autoflow_Bot\user_data\backtest_results\backtest-result-2025-10-07_20-20-08.meta.json"

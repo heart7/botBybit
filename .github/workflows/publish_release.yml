@@ -1,0 +1,81 @@
+name: Publish release (manual approval)
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_name:
+        description: 'Name of the pending-release artifact (example: pending-release-v1.0.0)'
+        required: false
+        default: ''
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check artifact_name input
+        if: ${{ github.event.inputs.artifact_name == '' }}
+        run: |
+          echo "artifact_name input was not provided."
+          echo "Open the publish workflow with the pre-filled artifact_name (from the release notification) or provide artifact_name when running this workflow."
+          echo "Example: pending-release-v1.2.3"
+          exit 1
+
+      - name: Download pending release artifact
+        if: ${{ github.event.inputs.artifact_name != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ github.event.inputs.artifact_name }}
+
+      - name: Read tag from artifact
+        id: info
+        run: |
+          TAG=$(jq -r .tag < release-info.json)
+          COMMIT=$(jq -r .commit < release-info.json)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+
+      - name: Create tag and push (approved)
+        env:
+          TAG: ${{ steps.info.outputs.tag }}
+          TAG_COMMIT: ${{ steps.info.outputs.commit }}
+        run: |
+          MSG_START="Publishing release $TAG - starting (commit: ${TAG_COMMIT:-unknown})"
+          REPO=${GITHUB_REPOSITORY}
+          RUN_URL="https://github.com/${REPO}/actions/runs/${GITHUB_RUN_ID}"
+          echo "$MSG_START"
+          if [ -n "${{ secrets.TELEGRAM_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            # Build inline keyboard JSON with a link to the workflow run
+            # Pass commit info into the message text
+            PAYLOAD=$(jq -n --arg chat "${{ secrets.TELEGRAM_CHAT_ID }}" --arg text "$MSG_START" --arg run "$RUN_URL" '{chat_id: $chat, text: $text, reply_markup: {inline_keyboard: [[{text: "View run", url: $run}] ]}}')
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -H 'Content-Type: application/json' -d "$PAYLOAD" || true
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v2
+        with:
+          tag_name: ${{ steps.info.outputs.tag }}
+          release_name: ${{ steps.info.outputs.tag }}
+          body: "Released via manual approval workflow"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify: publish complete
+        run: |
+          TAG=${{ steps.info.outputs.tag }}
+          COMMIT=${{ steps.info.outputs.commit }}
+          MSG_DONE="Release ${TAG} published (commit: ${COMMIT})"
+          REPO=${GITHUB_REPOSITORY}
+          RELEASE_URL="https://github.com/${REPO}/releases/tag/${TAG}"
+          echo "$MSG_DONE"
+          if [ -n "${{ secrets.TELEGRAM_TOKEN }}" ] && [ -n "${{ secrets.TELEGRAM_CHAT_ID }}" ]; then
+            # Build inline keyboard JSON with a link to the release
+            PAYLOAD=$(jq -n --arg chat "${{ secrets.TELEGRAM_CHAT_ID }}" --arg text "$MSG_DONE" --arg rel "$RELEASE_URL" '{chat_id: $chat, text: $text, reply_markup: {inline_keyboard: [[{text: "View release", url: $rel}] ]}}')
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" -H 'Content-Type: application/json' -d "$PAYLOAD" || true
+          fi

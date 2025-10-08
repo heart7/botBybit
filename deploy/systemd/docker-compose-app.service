@@ -1,0 +1,15 @@
+[Unit]
+Description=Autoflow app (docker-compose)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+WorkingDirectory=/opt/autoflow_Bot
+EnvironmentFile=/opt/autoflow_Bot/.env
+ExecStart=/usr/bin/docker compose --project-directory /opt/autoflow_Bot up -d
+ExecStop=/usr/bin/docker compose --project-directory /opt/autoflow_Bot down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

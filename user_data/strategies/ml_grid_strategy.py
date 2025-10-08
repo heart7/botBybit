@@ -149,6 +149,13 @@ class MLGridStrategy(IStrategy):
         dataframe['macdhist'] = macdhist
         dataframe['sentiment'] = self.fetch_sentiment()
 
+        # Debug: log the most recent calculated indicators for visibility during backtests
+        try:
+            last = dataframe.tail(1).iloc[0]
+            logger.debug(f"Indicators (last row) - rsi={last.get('rsi')}, macdhist={last.get('macdhist')}, sentiment={last.get('sentiment')}")
+        except Exception:
+            pass
+
         if self.freqai_enabled and FreqaiDataKitchen is not None:
             dk = FreqaiDataKitchen(self.config)
             dataframe = dk.make_features(dataframe, self, metadata, self.freqai_feature_parameters)
@@ -159,30 +166,109 @@ class MLGridStrategy(IStrategy):
         dataframe['enter_long'] = 0
         dataframe['enter_short'] = 0
 
+        # Obtain predicted_delta series: prefer freqai predictions, otherwise use a simple momentum fallback
+        use_fallback = True
+        predicted_delta = None
+        sentiment = dataframe['sentiment'] if 'sentiment' in dataframe.columns else 0.5
+
         if self.freqai_enabled and hasattr(self, 'freqai') and self.freqai is not None:
-            pred_df = self.freqai.get_predictions(dataframe, metadata)
-            if pred_df is None or 'prediction' not in pred_df:
-                logger.warning("Missing prediction data.")
-                return dataframe
+            try:
+                pred_df = self.freqai.get_predictions(dataframe, metadata)
+                if pred_df is not None and 'prediction' in pred_df:
+                    predicted_delta = pred_df['prediction']
+                    use_fallback = False
+                else:
+                    logger.warning("Missing or malformed prediction data; falling back to momentum predictor.")
+            except Exception:
+                logger.exception("Error obtaining freqai predictions; falling back to momentum predictor.")
 
-            predicted_delta = pred_df['prediction']
-            sentiment = dataframe['sentiment']
+        if use_fallback:
+            # Momentum fallback: short-window percent change as a cheap proxy for predicted delta
+            try:
+                # 3-period return (can be tuned); clip to avoid extreme values
+                predicted_delta = dataframe['close'].pct_change(periods=3).fillna(0).clip(-0.1, 0.1)
+            except Exception:
+                # Final safeguard: zero series if even that fails
+                predicted_delta = pd.Series([0.0] * len(dataframe), index=dataframe.index)
 
+        # Choose thresholds depending on whether we're using the ML predictor or fallback
+        if use_fallback:
+            pred_threshold_long = 0.001
+            pred_threshold_short = -0.001
+            # Relaxed fallback thresholds for easier signal generation during testing
+            pred_threshold_long = 0.0005
+            pred_threshold_short = -0.0005
+            # For fallback, do not gate on sentiment (useful for offline testing)
+            sentiment_high = 0.0
+            sentiment_low = 1.0
+            # Use a small MACD magnitude threshold: values with abs(macdhist) in the top 75%
+            try:
+                macd_abs_thresh = dataframe['macdhist'].abs().quantile(0.25)
+            except Exception:
+                macd_abs_thresh = 0.0
+        else:
+            pred_threshold_long = 0.005
+            pred_threshold_short = -0.005
+            sentiment_high = 0.6
+            sentiment_low = 0.4
+
+        # Now compute conditions; predicted_delta may be a Series or array-like
+        try:
+            pd_pred = pd.Series(predicted_delta, index=dataframe.index)
+        except Exception:
+            pd_pred = predicted_delta
+
+        # When using fallback, use relaxed RSI bounds and require a meaningful macdhist magnitude
+        if use_fallback:
+            conditions_long = (
+                (dataframe['rsi'] < 40) &
+                (dataframe['macdhist'] > macd_abs_thresh) &
+                (pd_pred > pred_threshold_long)
+            )
+        else:
             conditions_long = (
                 (dataframe['rsi'] < 30) &
                 (dataframe['macdhist'] > 0) &
-                (predicted_delta > 0.005) &
-                (sentiment > 0.6)
+                (pd_pred > pred_threshold_long) &
+                (sentiment > sentiment_high)
             )
-            dataframe.loc[conditions_long, 'enter_long'] = 1
+        dataframe.loc[conditions_long, 'enter_long'] = 1
 
+        # Debug: log how many long conditions matched and a sample index
+        try:
+            n_long = int(conditions_long.sum())
+            logger.debug(f"populate_entry_trend: {n_long} long conditions matched")
+            if n_long > 0:
+                sample_idxs = dataframe.loc[conditions_long].iloc[-3:].index.tolist()
+                logger.debug(f"populate_entry_trend: sample long indices: {sample_idxs}")
+        except Exception:
+            pass
+
+        if use_fallback:
+            conditions_short = (
+                (dataframe['rsi'] > 60) &
+                (dataframe['macdhist'] < -macd_abs_thresh) &
+                (pd_pred < pred_threshold_short)
+            )
+        else:
             conditions_short = (
                 (dataframe['rsi'] > 70) &
                 (dataframe['macdhist'] < 0) &
-                (predicted_delta < -0.005) &
-                (sentiment < 0.4)
+                (pd_pred < pred_threshold_short) &
+                (sentiment < sentiment_low)
             )
-            dataframe.loc[conditions_short, 'enter_short'] = 1
+
+        dataframe.loc[conditions_short, 'enter_short'] = 1
+
+        # Debug: log how many short conditions matched
+        try:
+            n_short = int(conditions_short.sum())
+            logger.debug(f"populate_entry_trend: {n_short} short conditions matched")
+            if n_short > 0:
+                sample_idxs = dataframe.loc[conditions_short].iloc[-3:].index.tolist()
+                logger.debug(f"populate_entry_trend: sample short indices: {sample_idxs}")
+        except Exception:
+            pass
 
         return dataframe
 
@@ -190,8 +276,17 @@ class MLGridStrategy(IStrategy):
         dataframe['exit_long'] = 0
         dataframe['exit_short'] = 0
 
-        dataframe.loc[(dataframe['rsi'] > 70) | (dataframe['sentiment'] < 0.4), 'exit_long'] = 1
-        dataframe.loc[(dataframe['rsi'] < 30) | (dataframe['sentiment'] > 0.6), 'exit_short'] = 1
+        exit_long_mask = (dataframe['rsi'] > 70) | (dataframe['sentiment'] < 0.4)
+        exit_short_mask = (dataframe['rsi'] < 30) | (dataframe['sentiment'] > 0.6)
+        dataframe.loc[exit_long_mask, 'exit_long'] = 1
+        dataframe.loc[exit_short_mask, 'exit_short'] = 1
+
+        try:
+            n_exit_long = int(exit_long_mask.sum())
+            n_exit_short = int(exit_short_mask.sum())
+            logger.debug(f"populate_exit_trend: exit_long={n_exit_long}, exit_short={n_exit_short}")
+        except Exception:
+            pass
 
         return dataframe
 
@@ -216,6 +311,40 @@ class MLGridStrategy(IStrategy):
             logger.info(f"Adjusted leverage: {leverage_final}")
             return leverage_final
         return self.default_leverage
+
+    from typing import Any
+
+    def custom_stoploss(self, pair: str, trade: Any, current_time: datetime, current_rate: float,
+                        current_profit: float, **kwargs) -> float:
+        """
+        Custom stoploss: once trade profit reaches 1% (0.01), start trailing the stoploss
+        so that it remains 1% behind the current profit. Return a stoploss as a
+        negative fraction (e.g., -0.02 means 2% stoploss). Return 1 to keep existing
+        stoploss behavior.
+        """
+        try:
+            # current_profit is a fraction (e.g., 0.02 for +2%) provided by freqtrade
+            profit = float(current_profit)
+        except Exception:
+            return 1
+
+        # If profit hasn't reached the trailing threshold, use normal strategy stoploss
+        trailing_threshold = 0.01  # 1%
+        trailing_distance = 0.01   # keep stoploss 1% behind current profit
+
+        if profit >= trailing_threshold:
+            # Desired stoploss level: current_profit - trailing_distance
+            new_stop = profit - trailing_distance
+            # Convert to negative stoploss fraction (freqtrade expects negative)
+            stoploss_frac = -abs(new_stop)
+            # Ensure we don't set a stoploss that's higher (less protective) than strategy stoploss
+            strategy_stop = getattr(self, 'stoploss', -0.05)
+            # Use the tighter (closer to zero) of the two (i.e., max since both negative)
+            final_stop = max(stoploss_frac, strategy_stop)
+            logger.debug(f"custom_stoploss: profit={profit:.4f} new_stop={final_stop:.4f}")
+            return float(final_stop)
+
+        return 1
 
     def custom_entry(self, pair: str, current_time: datetime, current_rate: float,
                      current_profit: float, **kwargs):
@@ -252,34 +381,3 @@ class MLGridStrategy(IStrategy):
 
         logger.info(f"Placing {direction} grid orders: {grid_orders}")
         return grid_orders
-
-    # --------------------- Telegram helper ---------------------
-    def _telegram_enabled(self) -> bool:
-        cfg = getattr(self, 'config', {}) or {}
-        tg = cfg.get('telegram') if isinstance(cfg.get('telegram'), dict) else {}
-        return bool(tg.get('enabled'))
-
-    def send_telegram(self, message: str) -> None:
-        """Send a short message via Telegram Bot API if configured.
-
-        This is intentionally minimal: it uses requests with a short timeout
-        and swallows exceptions so it never breaks strategy execution.
-        Configure `telegram.enabled`, `telegram.bot_token`, and `telegram.chat_id`
-        in `config.json` to enable.
-        """
-        try:
-            if not self._telegram_enabled():
-                return
-            cfg = self.config.get('telegram', {}) if isinstance(self.config.get('telegram'), dict) else {}
-            token = cfg.get('bot_token')
-            chat_id = cfg.get('chat_id')
-            if not token or not chat_id:
-                logger.debug("Telegram configured but bot_token/chat_id missing.")
-                return
-
-            url = f"https://api.telegram.org/bot{token}/sendMessage"
-            payload = {"chat_id": chat_id, "text": message}
-            # Lightweight call; do not block or raise on failure
-            requests.post(url, json=payload, timeout=3)
-        except Exception as e:
-            logger.debug(f"Failed to send Telegram message: {e}")

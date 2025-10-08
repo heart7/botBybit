@@ -1,0 +1,29 @@
+name: Image smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build image (load for local use)
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: autoflow:smoke
+          load: true
+
+      - name: Smoke test: import strategy inside container
+        run: |
+          # Run a short python check inside the image to ensure the strategy can be imported
+          docker run --rm autoflow:smoke /bin/bash -lc "python -c 'import sys; sys.path.insert(0, \"/opt/autoflow_Bot\"); from strategies.ml_grid_strategy import MLGridStrategy; print(\"MLGridStrategy import OK\")'"
