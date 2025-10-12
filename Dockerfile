@@ -8,15 +8,11 @@ WORKDIR /opt/autoflow_Bot
 # may be optional; copying the whole repo avoids build-time failures when they are absent.
 COPY . /opt/autoflow_Bot
 
-# Copy .env file (if you choose to include it in the image)
-COPY .env /opt/autoflow_Bot/.env
-
 # Create venv and install requirements into it
 RUN python -m venv /opt/venv \
   && /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel \
   && if [ -f /opt/autoflow_Bot/requirements.txt ]; then /opt/venv/bin/pip install -r /opt/autoflow_Bot/requirements.txt; fi
 
-### Runtime stage: copy venv and minimal files
 FROM python:3.11-slim AS runtime
 ENV PATH="/opt/venv/bin:$PATH"
 
@@ -38,11 +34,3 @@ ENV FREQTRADE_CONFIG_PATH=/opt/autoflow_Bot/config.json
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD []
-
-from dotenv import load_dotenv
-import os
-
-load_dotenv()  # Load environment variables from .env file
-
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-TELEGRAM_API_KEY = os.getenv('TELEGRAM_API_KEY')
