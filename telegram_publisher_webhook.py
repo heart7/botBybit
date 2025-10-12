@@ -22,8 +22,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load environment variables
-TELEGRAM_BOT_TOKEN = os.environ.get("8227711226:AAEQRT5BcU7sIJLJprv1IDKx0V5h-yO23zU")
-TELEGRAM_ADMIN_ID = os.environ.get("6178708150")  # Correctly load from env
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_ADMIN_ID = os.environ.get("TELEGRAM_ADMIN_ID")
 PUBLISH_GITHUB_PAT = os.environ.get("PUBLISH_GITHUB_PAT")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
