@@ -12,6 +12,7 @@ Env vars required:
 - GITHUB_REPOSITORY
 - WEBHOOK_SECRET (optional secret path segment to harden webhook)
 """
+
 import os
 import logging
 from flask import Flask, request, abort
@@ -20,19 +21,20 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-TELEGRAM_ADMIN_ID = os.environ.get("TELEGRAM_ADMIN_ID")
+# Load environment variables
+TELEGRAM_BOT_TOKEN = os.environ.get("8227711226:AAEQRT5BcU7sIJLJprv1IDKx0V5h-yO23zU")
+TELEGRAM_ADMIN_ID = os.environ.get("6178708150")  # Correctly load from env
 PUBLISH_GITHUB_PAT = os.environ.get("PUBLISH_GITHUB_PAT")
 GITHUB_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
 WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "")
 
+# Check for required environment variables
 if not TELEGRAM_BOT_TOKEN or not TELEGRAM_ADMIN_ID or not PUBLISH_GITHUB_PAT or not GITHUB_REPOSITORY:
     logger.error("Required env vars missing")
     raise SystemExit(1)
 
 TELEGRAM_API = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 app = Flask(__name__)
-
 
 def dispatch_publish(artifact_name: str) -> bool:
     # Resolve default branch
@@ -50,7 +52,6 @@ def dispatch_publish(artifact_name: str) -> bool:
     r = requests.post(api, json=payload, headers=headers)
     logger.info("Dispatched publish workflow for %s on ref=%s, status=%s", artifact_name, default_branch, r.status_code)
     return r.status_code in (200, 204)
-
 
 @app.route(f"/webhook{('/' + WEBHOOK_SECRET) if WEBHOOK_SECRET else ''}", methods=["POST"])
 def webhook():
@@ -78,7 +79,6 @@ def webhook():
                 requests.post(f"{TELEGRAM_API}/sendMessage", json={"chat_id": TELEGRAM_ADMIN_ID, "text": f"Failed to dispatch publish for {artifact}"})
             return ("", 200)
     return ("", 200)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
