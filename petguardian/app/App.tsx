@@ -1,29 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { AuthScreen } from '@/screens/AuthScreen';
-import { AccountScreen } from '@/screens/AccountScreen';
+import { StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AuthProvider } from '@/context/AuthContext';
+import { RootNavigator } from '@/navigation/RootNavigator';
 import { hasSupabaseConfig } from '@/lib/config';
-
-/**
- * Step 3 routing: not configured -> setup hint; loading -> spinner;
- * signed out -> AuthScreen; signed in -> AccountScreen.
- * Tab navigation (Home / Pets / Scan / Records / Account) arrives with the
- * screens that need it in later build steps.
- */
-function Root() {
-  const { session, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
-  return session ? <AccountScreen /> : <AuthScreen />;
-}
 
 function MissingConfig() {
   return (
@@ -39,16 +19,16 @@ function MissingConfig() {
 
 export default function App() {
   return (
-    <>
+    <SafeAreaProvider>
       {hasSupabaseConfig ? (
         <AuthProvider>
-          <Root />
+          <RootNavigator />
         </AuthProvider>
       ) : (
         <MissingConfig />
       )}
       <StatusBar style="auto" />
-    </>
+    </SafeAreaProvider>
   );
 }
 
