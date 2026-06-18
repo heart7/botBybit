@@ -41,4 +41,7 @@ token_refresh = 150
 
 [storage]
 enabled = true
-# Buckets are private by default; media is served via short-lived signed URLs (Doc 09 §5).
+# Global upload ceiling; the pet-media bucket sets its own 50 MiB cap + allowed
+# MIME types in migration 0011. Buckets are private; media is served via short-lived
+# signed URLs only (Doc 09 §5).
+file_size_limit = "50MiB"

@@ -41,7 +41,14 @@ export async function addWeight(
   if (error) throw toAppError(error);
 }
 
-export type TimelineKind = 'weight' | 'vaccination' | 'medication' | 'event' | 'assessment';
+export type TimelineKind =
+  | 'weight'
+  | 'vaccination'
+  | 'medication'
+  | 'event'
+  | 'assessment'
+  | 'photo'
+  | 'video';
 
 export interface TimelineItem {
   id: string;
@@ -60,16 +67,22 @@ export async function getTimeline(petId: string, perType = 20): Promise<Timeline
       .order(orderCol, { ascending: false })
       .limit(perType);
 
-  const [weights, vaccinations, medications, events, assessments] = await Promise.all([
+  const [weights, vaccinations, medications, events, assessments, media] = await Promise.all([
     eq('pet_weight_history', 'id, weight_kg, recorded_at', 'recorded_at'),
     eq('pet_vaccinations', 'id, vaccine, administered_at, next_due_at, created_at', 'created_at'),
     eq('pet_medications', 'id, name, dosage, start_at, created_at', 'created_at'),
     eq('pet_health_events', 'id, event_type, description, occurred_at', 'occurred_at'),
     eq('ai_assessments', 'id, triage_level, summary, created_at', 'created_at'),
+    eq('pet_media', 'id, kind, captured_at, created_at', 'created_at'),
   ]);
 
   const firstError =
-    weights.error || vaccinations.error || medications.error || events.error || assessments.error;
+    weights.error ||
+    vaccinations.error ||
+    medications.error ||
+    events.error ||
+    assessments.error ||
+    media.error;
   if (firstError) throw toAppError(firstError);
 
   const items: TimelineItem[] = [];
@@ -137,6 +150,20 @@ export async function getTimeline(petId: string, perType = 20): Promise<Timeline
       date: r.created_at,
       title: `Assessment: ${r.triage_level}`,
       subtitle: r.summary,
+    });
+  }
+
+  for (const r of (media.data ?? []) as unknown as Array<{
+    id: string;
+    kind: 'photo' | 'video';
+    captured_at: string | null;
+    created_at: string;
+  }>) {
+    items.push({
+      id: `media_${r.id}`,
+      kind: r.kind,
+      date: r.captured_at ?? r.created_at,
+      title: r.kind === 'video' ? 'Video added' : 'Photo added',
     });
   }
 

@@ -48,3 +48,48 @@ grant select on auth.users to authenticated, service_role;
 -- the migrations, which run as this same superuser after this statement.
 alter default privileges in schema public
   grant all on tables to anon, authenticated, service_role;
+
+-- --------------------------------------------------------------------------
+-- storage schema shim. Supabase provides storage.buckets, storage.objects, and
+-- helpers like storage.foldername(); recreate the minimal subset our storage
+-- policies (migration 0011) need so they can be tested on vanilla PostgreSQL.
+-- --------------------------------------------------------------------------
+create schema if not exists storage;
+
+create table if not exists storage.buckets (
+  id                text primary key,
+  name              text not null,
+  public            boolean not null default false,
+  file_size_limit   bigint,
+  allowed_mime_types text[],
+  created_at        timestamptz not null default now()
+);
+
+create table if not exists storage.objects (
+  id         uuid primary key default gen_random_uuid(),
+  bucket_id  text references storage.buckets (id),
+  name       text not null,
+  owner      uuid,
+  created_at timestamptz not null default now()
+);
+
+-- Returns the folder segments of an object path (everything except the filename),
+-- matching Supabase's helper. For 'uid/pet/file.jpg' -> {uid, pet}.
+create or replace function storage.foldername(name text)
+returns text[]
+language plpgsql
+immutable
+as $$
+declare
+  parts text[] := string_to_array(name, '/');
+begin
+  return parts[1:greatest(array_length(parts, 1) - 1, 0)];
+end;
+$$;
+
+alter table storage.objects enable row level security;
+
+grant usage on schema storage to anon, authenticated, service_role;
+grant all on storage.buckets, storage.objects to service_role;
+grant select on storage.buckets to authenticated;
+grant select, insert, update, delete on storage.objects to authenticated;
