@@ -1,0 +1,19 @@
+{
+  "name": "petguardian",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PetGuardian — an AI Health Operating System for Pets (monorepo root).",
+  "workspaces": [
+    "app"
+  ],
+  "scripts": {
+    "app": "npm --workspace app run start",
+    "typecheck": "npm --workspace app run typecheck",
+    "db:test": "bash scripts/test-db.sh",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

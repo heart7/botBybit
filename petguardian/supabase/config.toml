@@ -1,0 +1,29 @@
+# Supabase local development config (Supabase CLI).
+# `supabase start` boots Postgres + Auth + Storage; `supabase db reset` applies the
+# migrations in supabase/migrations and then supabase/seed.sql.
+project_id = "petguardian"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 16
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+# Rate limiting on auth endpoints is a guardrail (Doc 09 §6); tune in the dashboard
+# for hosted environments.
+
+[storage]
+enabled = true
+# Buckets are private by default; media is served via short-lived signed URLs (Doc 09 §5).

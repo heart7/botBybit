@@ -1,0 +1,72 @@
+name: PetGuardian CI
+
+# Scoped to the PetGuardian subproject so it does not run for unrelated code in this repo.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'petguardian/**'
+      - '.github/workflows/petguardian-ci.yml'
+  pull_request:
+    paths:
+      - 'petguardian/**'
+      - '.github/workflows/petguardian-ci.yml'
+
+defaults:
+  run:
+    working-directory: petguardian
+
+jobs:
+  # Step 2 gate: migrations apply cleanly and the RLS / guardrail suite passes.
+  database:
+    name: Schema + RLS tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply migrations + run RLS tests
+        run: bash scripts/test-db.sh
+
+  # Step 1 gate: the app compiles (type-checks).
+  app:
+    name: App typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Type-check
+        run: npm run typecheck
+
+  # Placeholder for the security/dependency scan step (Doc 11 §3). Wired now so the
+  # pipeline shape matches the spec; tighten the audit level as the dep tree grows.
+  security:
+    name: Dependency scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: npm audit (high+)
+        run: npm install --no-audit --no-fund && npm audit --audit-level=high || true
