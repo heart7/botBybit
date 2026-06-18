@@ -7,9 +7,11 @@
 
 create schema if not exists auth;
 
+-- Columns mirror the subset of Supabase's auth.users that our triggers read.
 create table if not exists auth.users (
-  id    uuid primary key default gen_random_uuid(),
-  email text unique
+  id                 uuid primary key default gen_random_uuid(),
+  email              text unique,
+  raw_user_meta_data jsonb not null default '{}'::jsonb
 );
 
 -- Mirrors Supabase's auth.uid(): the JWT 'sub' claim injected per request.

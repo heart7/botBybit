@@ -1,47 +1,59 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { TRIAGE_GUIDANCE, TRIAGE_LEVELS, AI_GUIDANCE_DISCLAIMER } from '@/lib/triage';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { AuthScreen } from '@/screens/AuthScreen';
+import { AccountScreen } from '@/screens/AccountScreen';
+import { hasSupabaseConfig } from '@/lib/config';
 
 /**
- * Step 1 skeleton screen. It renders the triage model so the foundation is visibly
- * wired; real screens (auth, pets, scans) arrive in later build steps. Networking is
- * intentionally not exercised here so the app runs before Supabase env is configured.
+ * Step 3 routing: not configured -> setup hint; loading -> spinner;
+ * signed out -> AuthScreen; signed in -> AccountScreen.
+ * Tab navigation (Home / Pets / Scan / Records / Account) arrives with the
+ * screens that need it in later build steps.
  */
-export default function App() {
+function Root() {
+  const { session, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return session ? <AccountScreen /> : <AuthScreen />;
+}
+
+function MissingConfig() {
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.title}>PetGuardian</Text>
-        <Text style={styles.subtitle}>AI Health Operating System for Pets</Text>
-
-        <Text style={styles.section}>Triage model</Text>
-        {TRIAGE_LEVELS.map((level) => (
-          <View key={level} style={[styles.card, styles[level]]}>
-            <Text style={styles.cardTitle}>
-              {level.toUpperCase()} — {TRIAGE_GUIDANCE[level].title}
-            </Text>
-            <Text style={styles.cardBody}>{TRIAGE_GUIDANCE[level].action}</Text>
-          </View>
-        ))}
-
-        <Text style={styles.disclaimer}>{AI_GUIDANCE_DISCLAIMER}</Text>
-      </ScrollView>
-      <StatusBar style="auto" />
+    <View style={styles.center}>
+      <Text style={styles.configTitle}>Configuration needed</Text>
+      <Text style={styles.configBody}>
+        Copy .env.example to .env and set EXPO_PUBLIC_SUPABASE_URL and
+        EXPO_PUBLIC_SUPABASE_ANON_KEY, then restart Expo.
+      </Text>
     </View>
   );
 }
 
+export default function App() {
+  return (
+    <>
+      {hasSupabaseConfig ? (
+        <AuthProvider>
+          <Root />
+        </AuthProvider>
+      ) : (
+        <MissingConfig />
+      )}
+      <StatusBar style="auto" />
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  content: { padding: 24, paddingTop: 72, gap: 8 },
-  title: { fontSize: 32, fontWeight: '700' },
-  subtitle: { fontSize: 16, color: '#555', marginBottom: 16 },
-  section: { fontSize: 18, fontWeight: '600', marginTop: 16, marginBottom: 4 },
-  card: { padding: 14, borderRadius: 12, marginVertical: 6 },
-  cardTitle: { fontSize: 16, fontWeight: '600' },
-  cardBody: { fontSize: 14, color: '#333', marginTop: 2 },
-  green: { backgroundColor: '#e6f4ea' },
-  yellow: { backgroundColor: '#fef7e0' },
-  orange: { backgroundColor: '#fde8e0' },
-  disclaimer: { fontSize: 12, color: '#666', marginTop: 24, fontStyle: 'italic' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  configTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, color: '#202124' },
+  configBody: { fontSize: 14, color: '#5f6368', textAlign: 'center', lineHeight: 20 },
 });

@@ -57,6 +57,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Type-check
         run: npm run typecheck
+      - name: Unit tests
+        run: npm test
 
   # Placeholder for the security/dependency scan step (Doc 11 §3). Wired now so the
   # pipeline shape matches the spec; tighten the audit level as the dep tree grows.

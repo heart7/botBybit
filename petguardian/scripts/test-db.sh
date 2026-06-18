@@ -34,8 +34,11 @@ done
 echo "==> Seeding reference data"
 psql_db -f "$SEED"
 
-echo "==> Running RLS / guardrail tests"
-psql_db -f "$TESTS_DIR/rls_test.sql"
+echo "==> Running test suites (*_test.sql)"
+for t in "$TESTS_DIR"/*_test.sql; do
+  echo "    - $(basename "$t")"
+  psql_db -f "$t"
+done
 
 echo "==> Dropping database '$TEST_DB'"
 psql_admin -d postgres -c "drop database if exists $TEST_DB;"

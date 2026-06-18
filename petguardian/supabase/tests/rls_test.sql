@@ -15,16 +15,12 @@
 -- ---------------------------------------------------------------------------
 -- Setup (as superuser; bypasses RLS)
 -- ---------------------------------------------------------------------------
+-- Inserting into auth.users fires handle_new_user(), which creates the matching
+-- profiles + free-tier subscriptions rows — so we do NOT insert those manually.
 reset role;
 insert into auth.users (id, email) values
   (:'user_a', 'a@example.com'),
   (:'user_b', 'b@example.com');
-
-insert into public.profiles (id, display_name) values
-  (:'user_a', 'Owner A'),
-  (:'user_b', 'Owner B');
-
-insert into public.subscriptions (user_id, tier) values (:'user_a', 'free');
 
 -- petA gets a deliberately old updated_at so the trigger test can prove it moves.
 insert into public.pets (id, user_id, name, species, updated_at) values

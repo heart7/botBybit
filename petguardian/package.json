@@ -9,6 +9,7 @@
   "scripts": {
     "app": "npm --workspace app run start",
     "typecheck": "npm --workspace app run typecheck",
+    "test": "npm --workspace app run test",
     "db:test": "bash scripts/test-db.sh",
     "db:reset": "supabase db reset",
     "db:diff": "supabase db diff"
