@@ -1,8 +1,9 @@
 import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { AccountScreen } from '@/screens/AccountScreen';
-import { HomeScreen, RecordsScreen, ScanScreen } from '@/screens/Placeholders';
+import { HomeScreen, RecordsScreen } from '@/screens/Placeholders';
 import { PetsStack } from './PetsStack';
+import { ScanStack } from './ScanStack';
 import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -21,7 +22,7 @@ export function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: tabIcon('🏠') }} />
       <Tab.Screen name="Pets" component={PetsStack} options={{ tabBarIcon: tabIcon('🐾') }} />
-      <Tab.Screen name="Scan" component={ScanScreen} options={{ tabBarIcon: tabIcon('📷') }} />
+      <Tab.Screen name="Scan" component={ScanStack} options={{ tabBarIcon: tabIcon('📷') }} />
       <Tab.Screen name="Records" component={RecordsScreen} options={{ tabBarIcon: tabIcon('📁') }} />
       <Tab.Screen name="Account" component={AccountScreen} options={{ tabBarIcon: tabIcon('👤') }} />
     </Tab.Navigator>

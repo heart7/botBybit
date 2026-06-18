@@ -9,12 +9,12 @@ interface FieldProps extends TextInputProps {
   error?: string | null;
 }
 
-export function Field({ label, error, ...inputProps }: FieldProps) {
+export function Field({ label, error, style, ...inputProps }: FieldProps) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error ? styles.inputError : null]}
+        style={[styles.input, error ? styles.inputError : null, style]}
         placeholderTextColor="#9aa0a6"
         accessibilityLabel={label}
         {...inputProps}

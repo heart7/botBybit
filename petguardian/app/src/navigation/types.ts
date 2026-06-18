@@ -7,6 +7,12 @@ export type PetsStackParamList = {
   LogWeight: { petId: string };
 };
 
+export type ScanStackParamList = {
+  ScanPetPicker: undefined;
+  ScanForm: { petId: string };
+  ScanResult: { scanId: string };
+};
+
 export type MainTabParamList = {
   Home: undefined;
   Pets: undefined;
