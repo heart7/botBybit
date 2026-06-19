@@ -1,0 +1,65 @@
+# CI for the standalone PetGuardian repo (project at the repository root).
+# This file lives at petguardian/.github/workflows/ci.yml so that a
+# `git subtree split --prefix=petguardian` promotes it to .github/workflows/ci.yml
+# at the root of the new repo, where GitHub Actions will run it. (GitHub ignores
+# workflows that are not at the repo root, so it does NOT run inside botBybit.)
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  database:
+    name: Schema + RLS tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply migrations + run RLS tests
+        run: bash scripts/test-db.sh
+
+  app:
+    name: App typecheck + tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Type-check
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+
+  security:
+    name: Dependency scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: npm audit (high+)
+        run: npm install --no-audit --no-fund && npm audit --audit-level=high || true
